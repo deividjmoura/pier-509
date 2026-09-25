@@ -9,6 +9,25 @@ entregar sem quebrar o que já funciona; não é histórico de conversa.
 
 ---
 
+## ▶ Estado atual (2026-09-25) — mensagem para quem continuar
+
+**Leia [`HANDOFF.md`](./HANDOFF.md) primeiro**: lá estão o ambiente local (incluindo como subir
+Postgres sem `psql`), as suítes com o resultado esperado, as armadilhas que já custaram tempo e as
+pendências. Resumo:
+
+- Último commit desta linha de trabalho: `9b7fb0c` (branch `arena/01a0d8ff-pier-509`, base
+  `8356f1a`). CI verde. **Ainda não foi mergeado na `main`** — se você está na `main`, esses
+  arquivos (`HANDOFF.md`, `DEPLOY.md`, `db/setor.js`, migration `0017`) podem não existir aí.
+- O produto está funcional e validado em **banco novo**, pelo caminho de deploy
+  (`npm run start:prod`): smoke, smoke-full, dia inteiro, render 10/10, carga 18/18,
+  segurança 35/35, regressões 40/40.
+- Esta rodada corrigiu 5 bugs (detalhe e arquivos no `HANDOFF.md`): setor de bebidas em banco
+  novo, cobrança sem lista em entrega parcial, 500 vazando erro do Postgres, rate-limit de login
+  contando acerto, e aviso de PIX pendente travando sessão fechada.
+- **Não "conserte" o que parece estranho sem ler o porquê**: o bloqueio de login na 9ª senha
+  errada, o 409 de "Nenhum item pronto para entrega" e o 409 de transição de status são
+  comportamentos corretos com teste cobrindo.
+
 ## Regras não negociáveis
 
 1. **Trabalho vai para a `main`.** Push direto ou PR mergeado no mesmo ciclo. Branch solta não
@@ -87,6 +106,17 @@ Depois, com banco e API no ar: `npm run test:smoke`, `npm run test:full`, `npm r
 ---
 
 ## Pendências conhecidas (não são bugs do produto)
+
+> Continuação da auditoria de 2026-09-25 (tudo o que sobrou):
+> 1. **Deploy no host** — `DEPLOY.md` passo a passo; banco novo gerenciado; trocar a senha do
+>    staff depois; `npm run start:prod` já foi validado contra banco vazio.
+> 2. **Logo do Pier 509** — o cliente avisou que a imagem enviada não serve como logo (fora de
+>    formato). Hoje a marca é tipográfica (`src/lib/marca.ts`).
+> 3. **Conferência visual no host** — no ambiente de desenvolvimento as fontes do Google não
+>    carregam; a tipografia final só dá para julgar publicado.
+> 4. **Antes de rodar 2+ instâncias** — mover rate-limit (`db/rateLimit.js`) e SSE
+>    (`db/events.js`) para Redis/Upstash; hoje são em memória por processo.
+
 
 - Rate-limit em memória: não é compartilhado entre múltiplas instâncias.
 - Impressão de cupom é pelo diálogo do navegador (`window.print()`), sem integração com
