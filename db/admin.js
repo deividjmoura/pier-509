@@ -1,5 +1,6 @@
 // CRUD de cardápio e listagem de mesas para o painel admin.
 const pool = require('./pool');
+const { setorDaCategoria, normalizarSetor } = require('./setor');
 const { numeroFinito, numeroInteiroPositivo } = require('./validacao');
 
 function normalizeFotoUrl(raw) {
@@ -157,6 +158,11 @@ async function atualizarCategoria(id, { nome, ordem }) {
   return rows[0];
 }
 
+async function exigirCategoria(categoriaId) {
+  const { rows } = await pool.query('SELECT id FROM categorias WHERE id = $1', [categoriaId]);
+  if (!rows[0]) throw new ErroAdmin(404, 'Categoria não encontrada');
+}
+
 async function criarProduto(body) {
   const nome = String(body.nome || '').trim();
   const categoriaId = numeroInteiroPositivo(body.categoriaId, 'categoriaId');
@@ -171,24 +177,20 @@ async function criarProduto(body) {
   );
   if (!nome) throw new ErroAdmin(400, 'Nome do produto é obrigatório');
 
-  let setor = body.setor != null ? String(body.setor).trim() : null;
-  if (setor && !['cozinha', 'bar'].includes(setor)) {
+  /* Categoria precisa existir: sem esta checagem o INSERT estourava a FK e o
+     cliente recebia 500 com a mensagem crua do Postgres
+     ("violates foreign key constraint produtos_categoria_id_fkey"). */
+  await exigirCategoria(categoriaId);
+
+  let setor = normalizarSetor(body.setor);
+  if (body.setor != null && !setor) {
     throw new ErroAdmin(400, "setor precisa ser 'cozinha' ou 'bar'");
   }
   if (!setor) {
-    // default inteligente pela categoria
+    /* Palpite pela categoria (fonte única em db/setor.js) — antes esta regra
+       vivia só aqui e não pegava "Doses", "Caipirinhas" nem "Long Neck". */
     const { rows: catRows } = await pool.query('SELECT nome FROM categorias WHERE id = $1', [categoriaId]);
-    const catNome = (catRows[0] && catRows[0].nome) || '';
-    const n = String(catNome).toLowerCase();
-    setor =
-      n.includes('bebida') ||
-      n.includes('suco') ||
-      n.includes('drink') ||
-      n.includes('cerveja') ||
-      n.includes('chopp') ||
-      n.includes('bar')
-        ? 'bar'
-        : 'cozinha';
+    setor = setorDaCategoria(catRows[0] && catRows[0].nome);
   }
 
   const { rows } = await pool.query(
@@ -246,6 +248,7 @@ async function atualizarProduto(id, body) {
   }
   if (body.categoriaId !== undefined) {
     const categoriaId = numeroInteiroPositivo(body.categoriaId, 'categoriaId');
+    await exigirCategoria(categoriaId);
     campos.push(`categoria_id = $${i++}`);
     vals.push(categoriaId);
   }

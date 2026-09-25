@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const pool = require('./pool');
 const { garantirStaffSeed } = require('./auth');
+const { setorDaCategoria } = require('./setor');
 
 const DB_JSON = path.join(__dirname, '..', 'data', 'db.json');
 const NUM_MESAS = 20;
@@ -211,6 +212,9 @@ async function run() {
     console.log(`✅ ${categoriasNomes.length} categorias inseridas.`);
 
     const prodHasPonto = await columnExists(client, 'produtos', 'pede_ponto_carne');
+    /* setor vem da migração 0013; sem gravar aqui, todo item nasce 'cozinha'
+       (o default da coluna) e o bar nunca recebe bebida em banco novo. */
+    const prodHasSetor = await columnExists(client, 'produtos', 'setor');
 
     let totalProdutos = 0;
     let totalAdicionais = 0;
@@ -219,8 +223,15 @@ async function run() {
     for (const p of raw.menu) {
       const categoriaId = categoriaIdPorNome[p.category];
       const pedePontoCarne = Boolean(p.customization?.meatPoint);
+      const setor = setorDaCategoria(p.category);
       let rows;
-      if (prodHasPonto) {
+      if (prodHasPonto && prodHasSetor) {
+        ({ rows } = await client.query(
+          `INSERT INTO produtos (categoria_id, nome, descricao, preco, disponivel, pede_ponto_carne, setor)
+           VALUES ($1, $2, $3, $4, TRUE, $5, $6) RETURNING id`,
+          [categoriaId, p.name, p.description || null, p.price, pedePontoCarne, setor]
+        ));
+      } else if (prodHasPonto) {
         ({ rows } = await client.query(
           `INSERT INTO produtos (categoria_id, nome, descricao, preco, disponivel, pede_ponto_carne)
            VALUES ($1, $2, $3, $4, TRUE, $5) RETURNING id`,
@@ -286,6 +297,14 @@ async function run() {
     console.log(
       `✅ ${totalProdutos} produtos, ${totalAdicionais} adicionais e ${totalRemoviveis} ingredientes removíveis inseridos.`
     );
+    if (prodHasSetor) {
+      const { rows: setores } = await client.query(
+        'SELECT setor, COUNT(*)::int AS n FROM produtos GROUP BY setor ORDER BY setor'
+      );
+      console.log(
+        '   setores: ' + setores.map((s) => `${s.setor}=${s.n}`).join(' · ')
+      );
+    }
 
     const staff = await garantirStaffSeed();
     if (staff.created) {

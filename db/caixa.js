@@ -104,19 +104,25 @@ async function listSessoesAbertas() {
   }
 
 
-  const entregueIds = pedidos.filter((p) => p.status === 'entregue').map((p) => p.id);
+  /* Itens de TODOS os pedidos da sessão, com status por item.
+     Antes só vinham os itens de pedidos com status 'entregue' — e uma entrega
+     parcial deixa o pedido em 'concluido' mesmo com itens já entregues (e já
+     somados em valor_total). Resultado: o caixa cobrava R$ 30,00 com a lista
+     da conta VAZIA, sem como o atendente explicar o valor ao cliente. */
+  const todosPedidoIds = pedidos.map((p) => p.id);
   let itensRows = [];
   const addByItem = new Map();
   const remByItem = new Map();
 
-  if (entregueIds.length) {
+  if (todosPedidoIds.length) {
     const itensRes = await pool.query(
-      `SELECT ip.id, ip.pedido_id, pr.nome, ip.quantidade, ip.preco_unitario, ip.ponto_carne, ip.observacao
+      `SELECT ip.id, ip.pedido_id, pr.nome, ip.quantidade, ip.preco_unitario, ip.ponto_carne, ip.observacao,
+              COALESCE(ip.status, 'recebido') AS status
        FROM itens_pedido ip
        JOIN produtos pr ON pr.id = ip.produto_id
        WHERE ip.pedido_id = ANY($1::int[])
        ORDER BY ip.id`,
-      [entregueIds]
+      [todosPedidoIds]
     );
     itensRows = itensRes.rows;
     const itemIds = itensRows.map((i) => i.id);
@@ -164,20 +170,24 @@ async function listSessoesAbertas() {
     const entregues = [];
     let pendentes = 0;
     for (const p of lista) {
-      if (p.status === 'entregue') {
-        const raw = itensByPedido.get(p.id) || [];
-        const itens = montarItensComExtras(raw, addByItem, remByItem);
+      const raw = itensByPedido.get(p.id) || [];
+      const entreguesDoPedido = raw.filter((i) => i.status === 'entregue');
+      const temPendente = raw.some((i) => i.status !== 'entregue');
+      if (temPendente) pendentes += 1;
+      /* Entra na conta assim que tiver QUALQUER item entregue: é isso que
+         valor_total já cobrou. */
+      if (entreguesDoPedido.length) {
+        const itens = montarItensComExtras(entreguesDoPedido, addByItem, remByItem);
         const totalPedido = Number(itens.reduce((acc, i) => acc + i.subtotal, 0).toFixed(2));
         entregues.push({
           id: p.id,
           criadoEm: p.criado_em,
           observacaoGeral: p.observacao_geral,
           clienteNome: p.cliente_nome || null,
+          parcial: temPendente,
           itens,
           total: totalPedido,
         });
-      } else {
-        pendentes += 1;
       }
     }
     const pagamentos = pagBySessao.get(s.id) || [];
@@ -345,6 +355,16 @@ async function fecharSessao(sessaoId, body) {
       valorPago = Number((valorPago + falta).toFixed(2));
     }
 
+    /* Aviso de PIX que o caixa não confirmou não pode ficar 'pendente' numa
+       conta já fechada: viraria alerta fantasma em relatório/backoffice e
+       escondia o caso em que o cliente diz ter pago e o caixa fechou em
+       dinheiro (cobrança dupla). Fica registrado como 'expirado'. */
+    const { rowCount: avisosExpirados } = await client.query(
+      `UPDATE pix_avisos SET status = 'expirado'
+       WHERE sessao_id = $1 AND status = 'pendente'`,
+      [sessaoId]
+    );
+
     const { rows: updated } = await client.query(
       `UPDATE mesa_sessoes
        SET status = 'fechada',
@@ -375,6 +395,7 @@ async function fecharSessao(sessaoId, body) {
       abertaEm: row.aberta_em,
       fechadaEm: row.fechada_em,
       status: 'fechada',
+      avisosExpirados: Number(avisosExpirados || 0),
     };
   } catch (err) {
     try {

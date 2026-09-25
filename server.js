@@ -56,7 +56,7 @@ const {
   homeDoPapel,
   garantirStaffSeed,
 } = require('./db/auth');
-const { golpePermitido } = require('./db/rateLimit');
+const { golpePermitido, golpeExcedido, registrarGolpe, limparGolpes } = require('./db/rateLimit');
 const { normalizarChavePix, inspecionarChavePix } = require('./db/pix-normaliza');
 const { subscribe, broadcast } = require('./db/events');
 const pool = require('./db/pool');
@@ -272,7 +272,11 @@ const server = http.createServer(async (req, res) => {
 
     if ((m = p.match(/^\/api\/mesas\/([^/]+)\/pedidos$/)) && req.method === 'POST') {
       const ip = clientIp(req);
-      if (!golpePermitido(`pedido:${ip}:${m[1]}`, { janelaMs: 5 * 60 * 1000, max: 10 })) {
+      /* 20 por mesa em 5 min cobre mesa grande pedindo em rodadas; o teto por
+         IP (60) mantém a proteção contra script martelando o endpoint. */
+      const dentroDaMesa = golpePermitido(`pedido:${ip}:${m[1]}`, { janelaMs: 5 * 60 * 1000, max: 20 });
+      const dentroDoIp = dentroDaMesa && golpePermitido(`pedido-ip:${ip}`, { janelaMs: 5 * 60 * 1000, max: 60 });
+      if (!dentroDaMesa || !dentroDoIp) {
         return json(res, 429, { error: 'Muitos pedidos em pouco tempo. Aguarde um instante.' });
       }
       try {
@@ -404,14 +408,34 @@ const server = http.createServer(async (req, res) => {
 
     if (p === '/api/login' && req.method === 'POST') {
       const ip = clientIp(req);
-      if (!golpePermitido(`login:${ip}`, { janelaMs: 5 * 60 * 1000, max: 8 })) {
-        return json(res, 429, { error: 'Muitas tentativas. Aguarde alguns minutos e tente de novo.' });
+      /* O limite existe para barrar força bruta — então conta SENHA ERRADA,
+         não tentativa. Antes contava tudo: com toda a equipe saindo pelo mesmo
+         IP da loja, o 9º login legítimo do turno era bloqueado por 5 minutos
+         como se fosse ataque. Limites: 10 falhas por IP em 15 min (bloqueia) e
+         30 falhas por usuário+IP em 15 min (evita spray em vários IPs). */
+      const JANELA_FALHAS = 10 * 60 * 1000;
+      const chaveIp = `login-falha:${ip}`;
+      if (golpeExcedido(chaveIp, { janelaMs: JANELA_FALHAS, max: 20 })) {
+        return json(res, 429, {
+          error: 'Muitas tentativas de senha. Aguarde alguns minutos e tente de novo.',
+        });
       }
+      let usuario = 'sem-usuario';
       try {
         await garantirStaffSeed();
         const b = await body(req);
+        usuario = String(b.usuario || b.login || b.user || '').trim().toLowerCase() || 'sem-usuario';
+        const chaveUsuario = `login-falha:${ip}:${usuario}`;
+        if (golpeExcedido(chaveUsuario, { janelaMs: JANELA_FALHAS, max: 8 })) {
+          return json(res, 429, {
+            error: 'Muitas tentativas para este usuário. Aguarde alguns minutos.',
+          });
+        }
         const staff = await autenticar(b.usuario || b.login || b.user, b.senha);
         const token = await criarSessao(staff.id);
+        /* Entrou: zera as falhas daquele usuário (a memória do bloqueio é para
+           senha errada seguida de senha errada, não para atrapalhar o turno). */
+        limparGolpes(chaveUsuario);
         res.setHeader('Set-Cookie', cookieDeSessao(token));
         return json(res, 200, {
           ok: true,
@@ -419,7 +443,14 @@ const server = http.createServer(async (req, res) => {
           home: homeDoPapel(staff.papel),
         });
       } catch (e) {
-        if (e instanceof ErroAuth) return json(res, e.status, { error: e.message });
+        if (e instanceof ErroAuth) {
+          /* Só falha de credencial alimenta o contador; erro de rede/banco não. */
+          if (e.status === 401 || e.status === 400) {
+            registrarGolpe(chaveIp);
+            registrarGolpe(`login-falha:${ip}:${usuario}`);
+          }
+          return json(res, e.status, { error: e.message });
+        }
         throw e;
       }
     }
@@ -952,6 +983,17 @@ const server = http.createServer(async (req, res) => {
     console.error(e);
     if (e && e.status) {
       return json(res, e.status, { error: e.message || 'Erro' });
+    }
+    /* Violação de integridade do Postgres (FK, unique, check) não é erro
+       interno: é entrada inválida. Responder 500 vazava nome de constraint e
+       virava alerta falso no monitoramento. */
+    if (e && typeof e.code === 'string' && e.code.startsWith('23')) {
+      const amigavel =
+        e.code === '23505'
+          ? 'Registro duplicado: já existe um item com esses dados.'
+          : 'Os dados enviados não fecham com o cadastro atual (verifique categoria, produto e valores).';
+      console.warn(`[http 409] ${req.method} ${req.url} — integridade ${e.code} (${e.constraint || 'sem constraint'})`);
+      return json(res, 409, { error: amigavel });
     }
     const msg =
       process.env.NODE_ENV === 'production'

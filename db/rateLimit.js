@@ -28,4 +28,29 @@ setInterval(() => {
   }
 }, 5 * 60 * 1000).unref();
 
-module.exports = { golpePermitido };
+/**
+ * Consulta se a chave já estourou a cota, SEM registrar tentativa.
+ * Usado no login: só tentativa que FALHOU conta (login correto não pode
+ * consumir a cota de quem está entrando no turno).
+ */
+function golpeExcedido(chave, { janelaMs = 60_000, max = 30 } = {}) {
+  const agora = Date.now();
+  const lista = (buckets.get(chave) || []).filter((t) => agora - t < janelaMs);
+  buckets.set(chave, lista);
+  return lista.length >= max;
+}
+
+/** Registra uma tentativa na chave (ex.: senha errada). */
+function registrarGolpe(chave) {
+  const agora = Date.now();
+  const lista = buckets.get(chave) || [];
+  lista.push(agora);
+  buckets.set(chave, lista);
+}
+
+/** Zera a chave (útil em teste e em login bem-sucedido, se quiser). */
+function limparGolpes(chave) {
+  buckets.delete(chave);
+}
+
+module.exports = { golpePermitido, golpeExcedido, registrarGolpe, limparGolpes };

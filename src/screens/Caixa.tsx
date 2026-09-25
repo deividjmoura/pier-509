@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { OpsShell, useAnuncios } from "../components/OpsShell";
 import { useGuarda } from "../lib/guarda";
 import { Carregando, Badge, Btn, LivePill } from "../components/ui";
+import { confirmar } from "../components/Dialogos";
 import { useAgora } from "../router";
 import type { FormaPagamento, Sessao } from "../lib/types";
 import { FORMAS, consumoSessao, pagoSessao, usePub } from "../store/usePub";
@@ -224,7 +225,18 @@ function DetalheCaixa({ sessao }: { sessao: Sessao }) {
 
   const podeRegistrar = Number(valor) > 0.004 && Number(valor) <= restante + 0.01;
 
-  const fechar = () => {
+  const fechar = async () => {
+    /* Cliente avisou PIX e o caixa ainda não confirmou: fechar agora cobra o
+       restante inteiro (dinheiro/cartão) e o cliente pagaria duas vezes. */
+    if (sessao.pixAvisos > 0) {
+      const ok = await confirmar(
+        `${sessao.pixAvisos} aviso(s) de PIX do cliente ainda sem confirmação. ` +
+          (restante > 0.004
+            ? `Fechando assim, o restante (${BRL(restante)}) será cobrado em ${FORMAS.find((f) => f.id === forma)?.label ?? forma}.`
+            : "A conta está quitada.")
+      );
+      if (!ok) return;
+    }
     fecharSessao(sessao.id, forma);
     setFechando(false);
   };
@@ -451,6 +463,11 @@ function DetalheCaixa({ sessao }: { sessao: Sessao }) {
                     ? `O restante (${BRL(restante)}) será registrado em ${FORMAS.find((f) => f.id === forma)?.label} e a mesa fica livre.`
                     : "Conta já quitada — a mesa fica livre na hora."}
                 </p>
+                {sessao.pixAvisos > 0 && (
+                  <p className="mt-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-2.5 py-1.5 text-[11px] font-bold text-amber-800">
+                    {sessao.pixAvisos} PIX avisado(s) pelo cliente e ainda não confirmado(s) — confira antes de fechar.
+                  </p>
+                )}
                 <div className="mt-3 flex gap-2">
                   <Btn full variant="lime" onClick={fechar}>
                     <Check className="size-4.5" /> Confirmar fechamento

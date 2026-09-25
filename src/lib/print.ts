@@ -3,6 +3,7 @@
 import type { ItemPedido, Pedido } from "./types";
 import { BRL } from "./utils";
 import { MARCA } from "./marca";
+import { avisar } from "../components/Dialogos";
 
 export type SetorComanda = "cozinha" | "bar" | "garcom" | "geral";
 
@@ -200,7 +201,7 @@ ${bodyHtml}
   /* Fallback: nova aba same-origin com document.write (sem noopener) */
   const w = window.open("about:blank", "_blank", "width=420,height=720");
   if (!w) {
-    alert("Permita pop-ups para imprimir o cupom");
+    avisar("Permita pop-ups para imprimir o cupom", "Impressão bloqueada");
     return;
   }
   try {
@@ -217,7 +218,7 @@ ${bodyHtml}
     }
   } catch (e) {
     console.warn("[print window]", e);
-    alert("Não foi possível preparar a impressão. Tente novamente.");
+    avisar("Não foi possível preparar a impressão. Tente novamente.", "Impressão bloqueada");
   }
 }
 
@@ -612,7 +613,7 @@ export function imprimirRelatorioPdf(opts: {
 
   const w = window.open("about:blank", "_blank", "width=960,height=800");
   if (!w) {
-    alert("Permita pop-ups para abrir o relatório");
+    avisar("Permita pop-ups para abrir o relatório", "Relatório bloqueado");
     return;
   }
   try {
@@ -621,6 +622,6 @@ export function imprimirRelatorioPdf(opts: {
     w.document.close();
   } catch (e) {
     console.warn("[relatorio]", e);
-    alert("Não foi possível abrir o relatório.");
+    avisar("Não foi possível abrir o relatório.", "Relatório bloqueado");
   }
 }

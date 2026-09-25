@@ -502,3 +502,76 @@ test('payload PIX (BR Code) é TLV válido com CRC16 correto', () => {
     assert.ok(mai[1].val.length > 0, 'campo 26 sem chave');
   }
 });
+
+/* ------------------------------------------------------------------ */
+/* Bugs corrigidos na auditoria de produção (apontados por testes aqui) */
+/* ------------------------------------------------------------------ */
+
+test('login limita SENHA ERRADA, não tentativa (equipe inteira sai pelo mesmo IP)', () => {
+  const { golpeExcedido, registrarGolpe, limparGolpes } = require('../db/rateLimit');
+  const chave = 'teste-login-falha:' + Math.random();
+  const limite = { janelaMs: 60_000, max: 3 };
+  // consultas não consomem a cota: 30 logins corretos seguidos continuam liberados
+  for (let i = 0; i < 30; i++) assert.equal(golpeExcedido(chave, limite), false, 'consulta não pode consumir a cota');
+  // senha errada registra e estoura
+  for (let i = 1; i <= 3; i++) {
+    assert.equal(golpeExcedido(chave, limite), false, `falha ${i} deveria passar`);
+    registrarGolpe(chave);
+  }
+  assert.equal(golpeExcedido(chave, limite), true, 'depois do limite tem que bloquear');
+  // login correto zera a chave do usuário
+  limparGolpes(chave);
+  assert.equal(golpeExcedido(chave, limite), false, 'sucesso limpa as falhas registradas');
+
+  // e o server.js tem que usar esse caminho (não golpePermitido no login)
+  const fonte = fs.readFileSync('server.js', 'utf8');
+  const blocoLogin = fonte.slice(fonte.indexOf("p === '/api/login'"), fonte.indexOf("p === '/api/logout'"));
+  assert.match(blocoLogin, /golpeExcedido\(chaveIp/, 'login deve consultar a cota antes de autenticar');
+  assert.match(blocoLogin, /registrarGolpe\(chaveIp\)/, 'somente falha deve registrar tentativa');
+  assert.doesNotMatch(blocoLogin, /golpePermitido\(`login:/, 'golpePermitido no login volta a contar acerto e trava o turno');
+});
+
+test('criar/editar produto valida a categoria antes de gravar (sem 500 de FK)', () => {
+  const fonte = fs.readFileSync('db/admin.js', 'utf8');
+  assert.match(fonte, /erroDeIntegridade|function exigirCategoria/, 'admin.js precisa checar a categoria antes do INSERT/UPDATE');
+  const chamaNoCriar = fonte.slice(fonte.indexOf('async function criarProduto'), fonte.indexOf('async function atualizarProduto'));
+  assert.match(chamaNoCriar, /await exigirCategoria\(categoriaId\)/, 'criarProduto deve validar a categoria');
+  const chamaNoEditar = fonte.slice(fonte.indexOf('async function atualizarProduto'), fonte.indexOf('async function criarAdicional'));
+  assert.match(chamaNoEditar, /await exigirCategoria\(categoriaId\)/, 'atualizarProduto deve validar a categoria');
+});
+
+test('violação de integridade do PostgreSQL vira 409 amigável, nunca 500 com nome de constraint', () => {
+  const fonte = fs.readFileSync('server.js', 'utf8');
+  assert.match(fonte, /e\.code\.startsWith\('23'\)/, 'erros de integridade (classe 23xxx) devem ter tratamento próprio');
+  assert.match(fonte, /e\.code === '23505'/, 'duplicidade (23505) tem mensagem própria');
+  assert.doesNotMatch(fonte, /json\(res, 500, \{ error: e\.message \}\)/, 'mensagem crua do banco não pode ir para o cliente');
+});
+
+test('limite de pedidos por mesa não atrapalha mesa grande (20/5min) e mantém teto por IP', () => {
+  const fonte = fs.readFileSync('server.js', 'utf8');
+  assert.match(fonte, /pedido:\$\{ip\}:\$\{m\[1\]\}`, \{ janelaMs: 5 \* 60 \* 1000, max: 20 \}/, 'teto por mesa deve ser 20/5min');
+  assert.match(fonte, /pedido-ip:\$\{ip\}`/, 'teto por IP precisa continuar existindo');
+});
+
+test('nenhum arquivo do projeto usa alert()/confirm() nativo (quebra em navegador embutido)', () => {
+  const arquivos = [];
+  const varrer = (dir) => {
+    for (const nome of fs.readdirSync(dir, { withFileTypes: true })) {
+      const caminho = `${dir}/${nome.name}`;
+      if (nome.isDirectory()) varrer(caminho);
+      else if (/\.(ts|tsx)$/.test(nome.name)) arquivos.push(caminho);
+    }
+  };
+  varrer('src');
+  // Dialogos.tsx é quem OFERECE avisar()/confirmar(); o comentário dele cita alert()/confirm().
+  const culpados = arquivos
+    .filter((f) => !f.endsWith('components/Dialogos.tsx'))
+    .filter((f) => {
+      // ignora comentários: procura só o que aparece depois de remover // e /* */
+      const codigo = fs.readFileSync(f, 'utf8')
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+      return /(?<![.\w])(alert|confirm)\(/.test(codigo);
+    });
+  assert.deepEqual(culpados, [], 'use avisar()/confirmar() de components/Dialogos');
+});

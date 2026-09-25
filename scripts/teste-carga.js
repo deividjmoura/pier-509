@@ -80,11 +80,50 @@ async function login(usuario) {
 }
 
 async function mesasLivres(adminCookie, quantidade) {
-  const r = await req('GET', '/api/admin/mesas', { cookie: adminCookie });
-  if (r.status !== 200) throw new Error('não consegui listar mesas');
-  const livres = r.data.filter((m) => !m.sessaoAberta);
+  const listar = async () => {
+    const r = await req('GET', '/api/admin/mesas', { cookie: adminCookie });
+    if (r.status !== 200) throw new Error('não consegui listar mesas');
+    return r.data;
+  };
+
+  /* Instalação nova tem só as 20 mesas do seed e o teste pede 25: em vez de
+     abortar, cria as mesas que faltam (a numeração continua a partir da maior).
+     NÃO fecha o pool aqui — a auditoria SQL do fim precisa dele vivo. */
+  const criarFaltantes = async () => {
+    try {
+      const pool = require('../db/pool');
+      const { rows } = await pool.query('SELECT COALESCE(MAX(numero),0)::int AS n FROM mesas');
+      const total = Number(rows[0].n);
+      const faltam = quantidade - total;
+      if (faltam <= 0) return 0;
+      let criadas = 0;
+      for (let numero = total + 1; numero <= total + faltam; numero++) {
+        const r = await pool.query(
+          'INSERT INTO mesas (numero, token) VALUES ($1, gen_random_uuid()) ON CONFLICT (numero) DO NOTHING',
+          [numero]
+        );
+        criadas += r.rowCount;
+      }
+      if (criadas) console.log(`   + ${criadas} mesa(s) numeração ${total + 1}–${total + faltam} criada(s) para o teste`);
+      return criadas;
+    } catch (e) {
+      console.log(`   (não consegui criar mesas: ${e.message})`);
+      return 0;
+    }
+  };
+
+  let mesas = await listar();
+  let livres = mesas.filter((m) => !m.sessaoAberta);
+  if (livres.length < quantidade && mesas.length < quantidade) {
+    await criarFaltantes();
+    mesas = await listar();
+    livres = mesas.filter((m) => !m.sessaoAberta);
+  }
   if (livres.length < quantidade) {
-    throw new Error(`preciso de ${quantidade} mesas livres, há ${livres.length}. Feche as sessões anteriores.`);
+    throw new Error(
+      `preciso de ${quantidade} mesas livres, há ${livres.length} (de ${mesas.length}). ` +
+        'Feche as sessões abertas (npm run test:dia limpa? use MESAS=6) ou libere mesas antes de rodar.'
+    );
   }
   return livres.slice(0, quantidade);
 }
