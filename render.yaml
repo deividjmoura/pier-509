@@ -1,0 +1,34 @@
+# Blueprint do Render: banco Postgres + serviço web do Pier 509.
+# No painel: New → Blueprint → aponte para este repositório.
+databases:
+  - name: pier509-db
+    databaseName: pier509
+    user: pier509
+    plan: basic-256mb
+
+services:
+  - type: web
+    name: pier509
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: APP_TIMEZONE
+        value: America/Sao_Paulo
+      - key: STAFF_SEED_PASSWORD
+        sync: false # defina no painel (>= 12 caracteres)
+      - key: PIX_CHAVE
+        sync: false
+      - key: PIX_NOME
+        value: PIER 509
+      - key: PIX_CIDADE
+        value: ITAJAI
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pier509-db
+          property: connectionString

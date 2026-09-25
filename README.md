@@ -119,6 +119,9 @@ npm run build          # gera dist/ (o servidor serve dist/, não o fonte)
 npm start              # API + UI em http://localhost:3000
 ```
 
+Atalho: `npm run setup` cria o `.env` a partir do exemplo e roda migrate + seed.
+Banco novo, do zero, com cada passo explicado: **[DEPLOY.md](DEPLOY.md)**.
+
 Durante o desenvolvimento, com recarga do front:
 
 ```bash
@@ -166,13 +169,22 @@ recente. Ambos são de ambiente, não bugs do produto.
 
 ## Deploy
 
-1. Banco Postgres com `DATABASE_URL` configurada (SSL conforme o provedor).
-2. `NODE_ENV=production` e `STAFF_SEED_PASSWORD` forte (≥12 caracteres) — sem isso o bootstrap de
+Passo a passo completo (banco novo + cada plataforma + checklist): **[DEPLOY.md](DEPLOY.md)**.
+
+Resumo:
+
+1. Banco Postgres com `DATABASE_URL` configurada (SSL normalizado automaticamente).
+2. `npm run db:migrate` e `npm run db:seed` (no banco novo, antes do primeiro acesso).
+3. `NODE_ENV=production` e `STAFF_SEED_PASSWORD` forte (≥12 caracteres) — sem isso o bootstrap de
    usuários é recusado de propósito.
-3. `npm run build` gera `dist/`; `npm start` sobe API + UI na mesma porta.
-4. Migrations rodam automaticamente no boot (best-effort). Para exigir sucesso antes de aceitar
-   tráfego, use `npm run start:prod`.
-5. Depois do deploy, valide `/`, `/login`, uma mesa e o toggle de tema com recarga (hard refresh).
+4. `npm run build` gera `dist/` (já versionado); `npm start` sobe API + UI na mesma porta.
+5. Migrations rodam também no boot (best-effort). Para exigir sucesso antes de aceitar tráfego,
+   use `npm run start:prod`.
+6. Valide `/healthz`, `/`, `/login`, uma mesa e o toggle de tema com recarga (hard refresh).
+
+Arquivos de plataforma incluídos: `Dockerfile` + `.dockerignore` (VPS/Docker), `railway.json`
+(Railway: build, `npm start` e healthcheck `/healthz`) e `render.yaml` (blueprint com banco + web
+service). Nenhum volume é necessário: as fotos do cardápio ficam no próprio Postgres.
 
 CI (`.github/workflows/ci.yml`) roda instalação, typecheck, build, integridade de `dist/`,
 regressões e `node --check` em `server.js`/`db/`/`scripts/`.
