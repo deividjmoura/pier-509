@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: ['main', 'hardening/**', 'arena/**']
+  pull_request:
+    branches: ['main']
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      # Vite content-hash can differ between local/CI runners (same src, different
+      # chunk names). Require a successful build + intact dist shape instead of
+      # byte-identical hashes.
+      - name: dist/ integrity
+        run: |
+          test -f dist/index.html
+          test "$(find dist/assets -name 'index-*.js' 2>/dev/null | wc -l)" -ge 1
+          test "$(find dist/assets -name 'index-*.css' 2>/dev/null | wc -l)" -ge 1
+          test "$(find dist/assets -name 'react-*.js' 2>/dev/null | wc -l)" -ge 1
+          echo "dist/ ok after build (hash names may differ from committed tree)"
+
+      - name: Regression tests
+        run: npm run test:regression
+
+      - name: Server and db syntax
+        run: |
+          node --check server.js
+          for f in db/*.js scripts/*.js; do node --check "$f"; done

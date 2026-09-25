@@ -1,0 +1,549 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   PIER 509 — tema pirata
+   --------------------------------------------------------------------------
+   Dois climas, mesma alma:
+     · CLARO  = pergaminho (papel envelhecido, tinta sépia, ouro velho)
+     · ESCURO = taverna no cais à noite (navy profundo, dourado, cordas)
+   A paleta é declarada em variáveis --p509-* e o Tailwind aponta para elas,
+   então toda a UI (classes brand, navy, slate...) muda de cor sem tocar em
+   cada componente. O comentário não pode conter a sequência de fechamento de
+   comentário CSS usada em expressões curinga.
+   ========================================================================== */
+
+@theme {
+  --font-display: "Pirata One", "Cinzel", Georgia, serif;
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-navy-950: #050d18;
+
+  --animate-pulse-soft: pulseSoft 2.6s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+  --animate-floaty: floaty 7s ease-in-out infinite;
+  --animate-marquee: marquee 26s linear infinite;
+  --animate-tick: tick 1s steps(2) infinite;
+  --animate-balancar: balancar 6s ease-in-out infinite;
+
+  @keyframes pulseSoft {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(0.88); }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
+  @keyframes floaty {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-16px) rotate(2deg); }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes tick {
+    0% { opacity: 1; }
+    100% { opacity: 0.25; }
+  }
+  /* navio no cais — usado no fundo do cliente */
+  @keyframes balancar {
+    0%, 100% { transform: translateY(0) rotate(-0.6deg); }
+    50% { transform: translateY(-8px) rotate(0.6deg); }
+  }
+}
+
+@theme inline {
+  --color-white: var(--p509-white);
+  --color-slate-50: var(--p509-slate-50);
+  --color-slate-100: var(--p509-slate-100);
+  --color-slate-200: var(--p509-slate-200);
+  --color-slate-300: var(--p509-slate-300);
+  --color-slate-400: var(--p509-slate-400);
+  --color-slate-500: var(--p509-slate-500);
+  --color-slate-600: var(--p509-slate-600);
+  --color-slate-700: var(--p509-slate-700);
+  --color-slate-800: var(--p509-slate-800);
+  --color-navy-500: var(--p509-navy-500);
+  --color-navy-700: var(--p509-navy-700);
+  --color-navy-800: var(--p509-navy-800);
+  --color-navy-900: var(--p509-navy-900);
+  --color-brand-50: var(--p509-brand-50);
+  --color-brand-400: var(--p509-brand-400);
+  --color-brand-500: var(--p509-brand-500);
+  --color-brand-600: var(--p509-brand-600);
+  --color-brand-700: var(--p509-brand-700);
+  --color-teal-400: var(--p509-teal-400);
+  --color-teal-500: var(--p509-teal-500);
+  --color-teal-600: var(--p509-teal-600);
+  --color-teal-700: var(--p509-teal-700);
+  --color-amber-500: var(--p509-amber-500);
+  --color-amber-700: var(--p509-amber-700);
+  --color-rose-400: var(--p509-rose-400);
+  --color-rose-500: var(--p509-rose-500);
+  --color-rose-600: var(--p509-rose-600);
+  --color-rose-700: var(--p509-rose-700);
+  --color-violet-500: var(--p509-violet-500);
+  --color-violet-700: var(--p509-violet-700);
+  --color-sky-500: var(--p509-sky-500);
+  --color-sky-700: var(--p509-sky-700);
+}
+
+/* ================= TEMA CLARO (pergaminho) =================
+   Mesma paleta do fallback inline em src/lib/tema.ts. */
+:root {
+  color-scheme: light;
+
+  --p509-white: #f8f1de;          /* superfície de carta/card */
+  --p509-slate-50: #efe3c9;
+  --p509-slate-100: #e8d9b9;
+  --p509-slate-200: #d8c49c;
+  --p509-slate-300: #c2a877;
+  --p509-slate-400: #9a8358;
+  --p509-slate-500: #7a6540;
+  --p509-slate-600: #61502f;
+  --p509-slate-700: #4a3b21;
+  --p509-slate-800: #322716;
+  --p509-navy-500: #3d6076;
+  --p509-navy-700: #26485f;
+  --p509-navy-800: #17334a;
+  --p509-navy-900: #2b2113;       /* tinta sépia: texto principal */
+
+  --p509-brand-50: #f7ecd0;
+  --p509-brand-400: #c6952f;
+  --p509-brand-500: #a9791f;
+  --p509-brand-600: #8c6318;
+  --p509-brand-700: #6d4c12;
+
+  --p509-teal-400: #2fae8c;
+  --p509-teal-500: #1f8a6d;
+  --p509-teal-600: #146b55;
+  --p509-teal-700: #0f5443;
+
+  --p509-amber-500: #b5761a;
+  --p509-amber-700: #8a5711;
+
+  --p509-rose-400: #c4523f;
+  --p509-rose-500: #b23a30;
+  --p509-rose-600: #98302a;
+  --p509-rose-700: #7d2621;
+
+  --p509-violet-500: #6d4fa3;
+  --p509-violet-700: #54398a;
+  --p509-sky-500: #22618f;
+  --p509-sky-700: #17496e;
+
+  --p509-page: #e9dcc0;
+  --p509-text: #2b2113;
+  --p509-grad-from: #6d4c12;
+  --p509-grad-to: #146b55;
+  --p509-stroke: rgba(43, 33, 19, 0.34);
+  --p509-card-shadow: 0 1px 2px rgba(60, 45, 20, 0.08), 0 14px 30px -20px rgba(60, 45, 20, 0.35);
+  --p509-card-shadow-deep: 0 2px 4px rgba(60, 45, 20, 0.1), 0 24px 50px -24px rgba(60, 45, 20, 0.45);
+  --p509-scrollbar: #c2a877;
+  --p509-corda: #a9791f;
+  --p509-vidro: rgba(248, 241, 222, 0.86);
+  --p509-marinho: 233, 220, 192;      /* rgb da página, p/ sobreposições */
+}
+
+/* ================= TEMA ESCURO (taverna no cais) =================
+   Aceita data-theme="escuro" (canônico PT) E data-theme="dark" (legado). */
+:root[data-theme="escuro"],
+:root[data-theme="dark"],
+html.dark,
+[data-theme="escuro"],
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --p509-white: #10233a;          /* superfície de card */
+  --p509-slate-50: #081726;
+  --p509-slate-100: #14283f;
+  --p509-slate-200: #223a55;
+  --p509-slate-300: #35516f;
+  --p509-slate-400: #7d94ad;
+  --p509-slate-500: #a0b4c9;
+  --p509-slate-600: #bdcadc;
+  --p509-slate-700: #d4dfeb;
+  --p509-slate-800: #e9f1fa;
+  --p509-navy-500: #7fa6cd;
+  --p509-navy-700: #aecdee;
+  --p509-navy-800: #cbe0f5;
+  --p509-navy-900: #f0f6fd;       /* texto principal no escuro */
+
+  --p509-brand-50: #2a1f08;
+  --p509-brand-400: #f0d089;
+  --p509-brand-500: #d9a63f;
+  --p509-brand-600: #e9bd62;
+  --p509-brand-700: #f5dda3;
+
+  --p509-teal-400: #4fd0a8;
+  --p509-teal-500: #2fae8c;
+  --p509-teal-600: #4fd0a8;
+  --p509-teal-700: #86e3c6;
+
+  --p509-amber-500: #f0a83c;
+  --p509-amber-700: #f8ca77;
+
+  --p509-rose-400: #ee7a6d;
+  --p509-rose-500: #d9503f;
+  --p509-rose-600: #ee7a6d;
+  --p509-rose-700: #f6a99d;
+
+  --p509-violet-500: #9b7cd4;
+  --p509-violet-700: #c4aef0;
+  --p509-sky-500: #58aada;
+  --p509-sky-700: #94cdee;
+
+  --p509-page: #060f1d;
+  --p509-text: #f0f6fd;
+  --p509-grad-from: #f5dda3;
+  --p509-grad-to: #4fd0a8;
+  --p509-stroke: rgba(240, 246, 253, 0.34);
+  --p509-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 14px 34px -20px rgba(0, 0, 0, 0.75);
+  --p509-card-shadow-deep: 0 2px 5px rgba(0, 0, 0, 0.5), 0 26px 54px -24px rgba(0, 0, 0, 0.8);
+  --p509-scrollbar: #33506f;
+  --p509-corda: #b98a34;
+  --p509-vidro: rgba(16, 35, 58, 0.82);
+  --p509-marinho: 6, 15, 29;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--p509-page);
+  color: var(--p509-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Textura de fundo global: pergaminho no claro, mar noturno no escuro. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -999;
+  pointer-events: none;
+  background-image: url("/assets/pirata/pergaminho.webp");
+  background-size: 700px;
+  background-repeat: repeat;
+  opacity: 0.9;
+}
+:root[data-theme="escuro"] body::before,
+:root[data-theme="dark"] body::before,
+html.dark body::before,
+[data-theme="escuro"] body::before,
+[data-theme="dark"] body::before {
+  background-image: url("/assets/pirata/mapa.webp");
+  background-size: cover;
+  background-position: top center;
+  opacity: 0.24;
+}
+
+::selection {
+  background: var(--p509-brand-500);
+  color: #fff8e6;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--p509-scrollbar) transparent;
+}
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: var(--p509-scrollbar); border-radius: 99px; }
+*::-webkit-scrollbar-thumb:hover { background: var(--p509-slate-400); }
+*::-webkit-scrollbar-track { background: transparent; }
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+  font-weight: 400;
+}
+
+/* ------------------------- superfícies -------------------------
+   glass = carta sobre a mesa (pergaminho claro / tabuada escura) */
+.glass,
+.glass-deep {
+  position: relative;
+  background: var(--p509-vidro);
+  border: 1px solid var(--p509-slate-200);
+  box-shadow: var(--p509-card-shadow);
+  backdrop-filter: blur(10px);
+}
+.glass-deep {
+  box-shadow: var(--p509-card-shadow-deep);
+}
+
+/* Moldura de corda: usada nos cartões principais e nos modais. */
+.borda-corda {
+  position: relative;
+}
+.borda-corda::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: inherit;
+  border: 2px dashed color-mix(in srgb, var(--p509-corda) 62%, transparent);
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+/* Cantos de mapa antigo (flourishes) */
+.cantos-mapa {
+  position: relative;
+}
+.cantos-mapa::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--p509-corda), var(--p509-corda)) left 10px top 10px / 22px 2px no-repeat,
+    linear-gradient(var(--p509-corda), var(--p509-corda)) left 10px top 10px / 2px 22px no-repeat,
+    linear-gradient(var(--p509-corda), var(--p509-corda)) right 10px top 10px / 22px 2px no-repeat,
+    linear-gradient(var(--p509-corda), var(--p509-corda)) right 10px top 10px / 2px 22px no-repeat,
+    linear-gradient(var(--p509-corda), var(--p509-corda)) left 10px bottom 10px / 22px 2px no-repeat,
+    linear-gradient(var(--p509-corda), var(--p509-corda)) left 10px bottom 10px / 2px 22px no-repeat,
+    linear-gradient(var(--p509-corda), var(--p509-corda)) right 10px bottom 10px / 22px 2px no-repeat,
+    linear-gradient(var(--p509-corda), var(--p509-corda)) right 10px bottom 10px / 2px 22px no-repeat;
+  opacity: 0.55;
+}
+
+/* Papel do QR — branco nos DOIS temas, com folga ao redor (zona de silêncio).
+   Leitor de QR precisa de contraste, não de tema bonito: sem isso o QR do PIX
+   e o QR da mesa ficam transparentes sobre fundo escuro e não são lidos. */
+.papel-qr {
+  background: #ffffff;
+  color: #0a2540;
+  border: 1px solid rgba(10, 37, 64, 0.12);
+}
+
+/* Placa de madeira — títulos e cabeçalhos */
+.placa-madeira {
+  background-image: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.06),
+      rgba(0, 0, 0, 0.16)
+    ),
+    repeating-linear-gradient(
+      90deg,
+      #3a2412 0px,
+      #43290f 6px,
+      #33200f 13px,
+      #3f2711 20px
+    );
+  border: 1px solid #6c4a1e;
+  box-shadow: inset 0 1px 0 rgba(255, 214, 138, 0.25), 0 10px 26px -14px rgba(0, 0, 0, 0.8);
+  color: #f6e3bb;
+}
+
+/* Fundo com doodles piratas (página do cliente) */
+.fundo-doodles {
+  background-image: url("/assets/pirata/doodles-escuro.webp");
+  background-size: 560px;
+  background-repeat: repeat;
+  opacity: 0.16;
+}
+:root:not([data-theme="escuro"]):not([data-theme="dark"]) .fundo-doodles {
+  background-image: url("/assets/pirata/doodles-claro.webp");
+  background-size: 620px;
+  opacity: 0.14;
+}
+
+/* Mapa do tesouro — fundo do admin */
+.fundo-mapa {
+  background-image: url("/assets/pirata/mapa.webp");
+  background-size: cover;
+  background-position: center top;
+  opacity: 0.34;
+}
+:root:not([data-theme="escuro"]):not([data-theme="dark"]) .fundo-mapa {
+  opacity: 0.22;
+  filter: sepia(0.35) saturate(0.9);
+}
+
+/* Divisor de ondas (fim de seção) */
+.divisor-onda {
+  height: 18px;
+  background-image: radial-gradient(circle at 10px -4px, transparent 12px, var(--p509-corda) 13px, transparent 14px);
+  background-size: 26px 18px;
+  background-repeat: repeat-x;
+  opacity: 0.4;
+}
+
+.ring-brand {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--p509-brand-500) 45%, transparent),
+    0 10px 34px -12px color-mix(in srgb, var(--p509-brand-500) 55%, transparent);
+}
+
+.text-gradient {
+  background: linear-gradient(94deg, var(--p509-grad-from) 0%, var(--p509-navy-500) 48%, var(--p509-grad-to) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Ouro maciço — para números e destaques */
+.text-ouro {
+  background: linear-gradient(180deg, #f6dd9c 0%, #d9a63f 46%, #a9791f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.stroke-text {
+  -webkit-text-stroke: 1.5px var(--p509-stroke);
+  color: transparent;
+}
+
+.noise::after {
+  content: none;
+}
+
+.glow-orb {
+  filter: blur(90px);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.shine {
+  background: linear-gradient(110deg, var(--p509-brand-500) 35%, #f6dd9c 50%, var(--p509-brand-500) 65%);
+  background-size: 200% 100%;
+  animation: shimmer 2.2s linear infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.btn-press {
+  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s, background 0.15s, border-color 0.15s;
+}
+.btn-press:active { transform: scale(0.955); }
+
+.tabular { font-variant-numeric: tabular-nums; }
+
+.mask-fade-b {
+  -webkit-mask-image: linear-gradient(to bottom, black 62%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 62%, transparent 100%);
+}
+
+.card-img-zoom img {
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s;
+}
+.card-img-zoom:hover img {
+  transform: scale(1.07) rotate(-0.5deg);
+}
+
+/* Selo da marca — leve relevo dourado */
+.selo-marca {
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+}
+
+/* ------------------ ajustes de contraste por tema ------------------ */
+:root[data-theme="escuro"] .text-white,
+:root[data-theme="dark"] .text-white,
+html.dark .text-white,
+[data-theme="escuro"] .text-white,
+[data-theme="dark"] .text-white { color: #ffffff; }
+:root[data-theme="escuro"] .border-white,
+:root[data-theme="dark"] .border-white,
+html.dark .border-white,
+[data-theme="escuro"] .border-white,
+[data-theme="dark"] .border-white { border-color: #ffffff; }
+
+/* logo em versão clara/escura quando existir par de arquivos */
+.p509-logo-dark { display: none; }
+:root[data-theme="escuro"] .p509-logo-light,
+:root[data-theme="dark"] .p509-logo-light,
+html.dark .p509-logo-light,
+[data-theme="escuro"] .p509-logo-light,
+[data-theme="dark"] .p509-logo-light { display: none; }
+:root[data-theme="escuro"] .p509-logo-dark,
+:root[data-theme="dark"] .p509-logo-dark,
+html.dark .p509-logo-dark,
+[data-theme="escuro"] .p509-logo-dark,
+[data-theme="dark"] .p509-logo-dark { display: inline-block; }
+
+.p509-papel { background: #fffdf6 !important; }
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+@media print {
+  body * { visibility: hidden; }
+  #print-area, #print-area * { visibility: visible; }
+  #print-area { position: absolute; inset: 0; }
+}
+
+html, body, #root {
+  max-width: 100vw;
+  overflow-x: clip;
+}
+
+body {
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+}
+
+.container-app {
+  width: 100%;
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 380px) {
+  .font-display {
+    letter-spacing: 0.01em;
+  }
+}
+
+video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+img {
+  max-width: 100%;
+}
+.card-produto img.card-produto-foto {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  display: block;
+}
+
+input, textarea, select, button {
+  max-width: 100%;
+}
+
+.grid-cardapio {
+  align-items: stretch;
+}
+.grid-cardapio > * {
+  height: 100%;
+  min-width: 0;
+}
+
+/* Movimento reduzido: respeita a preferência do sistema */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
