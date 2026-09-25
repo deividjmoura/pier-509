@@ -1,0 +1,520 @@
+{
+  "orders": [],
+  "nextOrder": 1,
+  "menu": [
+    {
+      "id": 1,
+      "name": "Água",
+      "price": 6.0,
+      "category": "Bebidas",
+      "description": "Água mineral sem gás"
+    },
+    {
+      "id": 2,
+      "name": "Água com Gás",
+      "price": 6.0,
+      "category": "Bebidas",
+      "description": "Água mineral com gás"
+    },
+    {
+      "id": 3,
+      "name": "Água Tônica",
+      "price": 8.0,
+      "category": "Bebidas"
+    },
+    {
+      "id": 4,
+      "name": "Schweppes",
+      "price": 8.0,
+      "category": "Bebidas"
+    },
+    {
+      "id": 5,
+      "name": "Energético Red Bull",
+      "price": 18.0,
+      "category": "Bebidas",
+      "description": "Lata"
+    },
+    {
+      "id": 6,
+      "name": "Smirnoff Ice",
+      "price": 18.0,
+      "category": "Bebidas"
+    },
+    {
+      "id": 7,
+      "name": "Refrigerante Lata",
+      "price": 7.0,
+      "category": "Bebidas",
+      "description": "Escolha o sabor",
+      "customization": {
+        "additions": [
+          {"name": "Coca-Cola", "price": 0},
+          {"name": "Coca-Cola Zero", "price": 0},
+          {"name": "Guaraná Antarctica", "price": 0},
+          {"name": "Guaraná Zero", "price": 0},
+          {"name": "Fanta Laranja", "price": 0},
+          {"name": "Fanta Uva", "price": 0},
+          {"name": "Sprite", "price": 0}
+        ],
+        "removals": []
+      }
+    },
+    {
+      "id": 8,
+      "name": "Suco Lata",
+      "price": 8.0,
+      "category": "Bebidas",
+      "description": "Escolha o sabor",
+      "customization": {
+        "additions": [
+          {"name": "Laranja", "price": 0},
+          {"name": "Uva", "price": 0},
+          {"name": "Pêssego", "price": 0},
+          {"name": "Maracujá", "price": 0}
+        ],
+        "removals": []
+      }
+    },
+    {
+      "id": 9,
+      "name": "Suco Natural de Laranja",
+      "price": 12.0,
+      "category": "Bebidas"
+    },
+    {
+      "id": 10,
+      "name": "Suco Natural de Maracujá",
+      "price": 12.0,
+      "category": "Bebidas"
+    },
+    {
+      "id": 11,
+      "name": "Suco Natural de Morango",
+      "price": 12.0,
+      "category": "Bebidas"
+    },
+    {
+      "id": 12,
+      "name": "Suco Polpa com Leite",
+      "price": 12.0,
+      "category": "Bebidas",
+      "description": "Polpa batida com leite"
+    },
+    {
+      "id": 13,
+      "name": "Condensado",
+      "price": 14.0,
+      "category": "Bebidas",
+      "description": "Bebida com leite condensado"
+    },
+    {
+      "id": 14,
+      "name": "Amstel",
+      "price": 17.0,
+      "category": "Cerveja 600ml",
+      "description": "Garrafa 600ml"
+    },
+    {
+      "id": 15,
+      "name": "Brahma",
+      "price": 16.0,
+      "category": "Cerveja 600ml",
+      "description": "Garrafa 600ml"
+    },
+    {
+      "id": 16,
+      "name": "Heineken",
+      "price": 20.0,
+      "category": "Cerveja 600ml",
+      "description": "Garrafa 600ml"
+    },
+    {
+      "id": 17,
+      "name": "Original",
+      "price": 19.0,
+      "category": "Cerveja 600ml",
+      "description": "Garrafa 600ml"
+    },
+    {
+      "id": 18,
+      "name": "Long Neck",
+      "price": 15.0,
+      "category": "Long Neck",
+      "description": "Escolha a marca",
+      "customization": {
+        "additions": [
+          {"name": "Heineken", "price": 0},
+          {"name": "Budweiser", "price": 0},
+          {"name": "Stella Artois", "price": 0},
+          {"name": "Corona", "price": 0},
+          {"name": "Original", "price": 0},
+          {"name": "Brahma", "price": 0}
+        ],
+        "removals": []
+      }
+    },
+    {
+      "id": 19,
+      "name": "Tanqueray",
+      "price": 22.0,
+      "category": "Doses"
+    },
+    {
+      "id": 20,
+      "name": "Steinhaeger",
+      "price": 18.0,
+      "category": "Doses"
+    },
+    {
+      "id": 21,
+      "name": "Smirnoff",
+      "price": 18.0,
+      "category": "Doses"
+    },
+    {
+      "id": 22,
+      "name": "Red Label",
+      "price": 22.0,
+      "category": "Doses"
+    },
+    {
+      "id": 23,
+      "name": "Jack Daniels",
+      "price": 27.0,
+      "category": "Doses"
+    },
+    {
+      "id": 24,
+      "name": "Jack Daniels Fire",
+      "price": 27.0,
+      "category": "Doses"
+    },
+    {
+      "id": 25,
+      "name": "Jack Daniels Honey",
+      "price": 27.0,
+      "category": "Doses"
+    },
+    {
+      "id": 26,
+      "name": "Jack Daniels Apple",
+      "price": 27.0,
+      "category": "Doses"
+    },
+    {
+      "id": 27,
+      "name": "Licor 43",
+      "price": 29.0,
+      "category": "Doses"
+    },
+    {
+      "id": 28,
+      "name": "Jagermeister",
+      "price": 27.0,
+      "category": "Doses"
+    },
+    {
+      "id": 29,
+      "name": "José Cuervo",
+      "price": 25.0,
+      "category": "Doses"
+    },
+    {
+      "id": 30,
+      "name": "Campari",
+      "price": 19.0,
+      "category": "Doses"
+    },
+    {
+      "id": 31,
+      "name": "Bacardi",
+      "price": 18.0,
+      "category": "Doses"
+    },
+    {
+      "id": 32,
+      "name": "Soda Italiana",
+      "price": 14.0,
+      "category": "Drinks Sem Álcool",
+      "description": "Escolha o sabor: frutas vermelhas, blue Curaçao, maçã verde, morango ou tangerina.",
+      "customization": {
+        "additions": [
+          {"name": "Frutas vermelhas", "price": 0},
+          {"name": "Blue Curaçao", "price": 0},
+          {"name": "Maçã verde", "price": 0},
+          {"name": "Morango", "price": 0},
+          {"name": "Tangerina", "price": 0}
+        ],
+        "removals": []
+      }
+    },
+    {
+      "id": 33,
+      "name": "Lagoa Azul",
+      "price": 20.0,
+      "category": "Drinks Sem Álcool",
+      "description": "Suco de limão, xarope blue curaçau, soda limonada e gelo."
+    },
+    {
+      "id": 34,
+      "name": "Piña Colada (sem álcool)",
+      "price": 20.0,
+      "category": "Drinks Sem Álcool",
+      "description": "Suco de abacaxi, leite de coco, leite condensado, água de coco e gelo."
+    },
+    {
+      "id": 35,
+      "name": "Gin Tônica",
+      "price": 26.0,
+      "category": "Drinks de Gin",
+      "description": "Dose de Gin, tônica, limão e gelo."
+    },
+    {
+      "id": 36,
+      "name": "Gin de Frutas",
+      "price": 26.0,
+      "category": "Drinks de Gin",
+      "description": "Dose de Gin, xarope de frutas, água com gás e gelo. Escolha o sabor.",
+      "customization": {
+        "additions": [
+          {"name": "Blue Curaçao", "price": 0},
+          {"name": "Maçã verde", "price": 0},
+          {"name": "Tangerina", "price": 0},
+          {"name": "Frutas vermelhas", "price": 0}
+        ],
+        "removals": []
+      }
+    },
+    {
+      "id": 37,
+      "name": "Tropical Gin",
+      "price": 26.0,
+      "category": "Drinks de Gin",
+      "description": "Dose de Gin, energético tropical, xarope de tangerina e gelo."
+    },
+    {
+      "id": 38,
+      "name": "Blue Gin",
+      "price": 26.0,
+      "category": "Drinks de Gin",
+      "description": "Dose de Gin, energético coco e açaí, xarope blue Curaçau e gelo."
+    },
+    {
+      "id": 39,
+      "name": "Green Apple Gin",
+      "price": 26.0,
+      "category": "Drinks de Gin",
+      "description": "Dose de Gin, energético e xarope de maçã verde e gelo."
+    },
+    {
+      "id": 40,
+      "name": "Aperol Spritz",
+      "price": 28.0,
+      "category": "Drinks Diversos",
+      "description": "Aperol, espumante, água com gás, laranja e gelo."
+    },
+    {
+      "id": 41,
+      "name": "Piña Colada (com álcool)",
+      "price": 26.0,
+      "category": "Drinks Diversos",
+      "description": "Rum, leite de coco, leite condensado, suco de abacaxi e gelo."
+    },
+    {
+      "id": 42,
+      "name": "Ibiza 43",
+      "price": 29.0,
+      "category": "Drinks Diversos",
+      "description": "Licor 43 e suco de abacaxi."
+    },
+    {
+      "id": 43,
+      "name": "Aperol Summer 43",
+      "price": 32.0,
+      "category": "Drinks Diversos",
+      "description": "Aperol, Licor 43 e suco de laranja."
+    },
+    {
+      "id": 44,
+      "name": "Martini",
+      "price": 18.0,
+      "category": "Drinks Diversos",
+      "description": "Martini e cereja."
+    },
+    {
+      "id": 45,
+      "name": "Smirnoff Cream",
+      "price": 27.0,
+      "category": "Drinks Diversos",
+      "description": "Smirnoff com morango ou maracujá, leite condensado e gelo. Escolha o sabor.",
+      "customization": {
+        "additions": [
+          {"name": "Morango", "price": 0},
+          {"name": "Maracujá", "price": 0}
+        ],
+        "removals": []
+      }
+    },
+    {
+      "id": 46,
+      "name": "Caipirinha de Limão",
+      "price": 20.0,
+      "category": "Caipirinhas",
+      "description": "Caipirinha clássica de limão."
+    },
+    {
+      "id": 47,
+      "name": "Caipirinha de Frutas",
+      "price": 23.0,
+      "category": "Caipirinhas",
+      "description": "Escolha a fruta e a bebida base.",
+      "customization": {
+        "additions": [
+          {"name": "Kiwi", "price": 0},
+          {"name": "Maracujá", "price": 0},
+          {"name": "Morango", "price": 0},
+          {"name": "Cachaça", "price": 0},
+          {"name": "Gin", "price": 0},
+          {"name": "Saquê", "price": 0},
+          {"name": "Steinhager", "price": 0},
+          {"name": "Vodka", "price": 0}
+        ],
+        "removals": []
+      }
+    },
+    {
+      "id": 48,
+      "name": "Batata Frita",
+      "price": 30.0,
+      "category": "Porções",
+      "description": "500g de batata crocante deliciosa. Acompanha farofa, molho da casa e pão."
+    },
+    {
+      "id": 49,
+      "name": "Batata Frita com Bacon e Queijo",
+      "price": 39.0,
+      "category": "Porções",
+      "description": "500g de batata crocante coberta com bacon e queijo mussarela. Acompanha farofa, molho da casa e pão."
+    },
+    {
+      "id": 50,
+      "name": "Polenta Frita com Bacon e Queijo",
+      "price": 36.0,
+      "category": "Porções",
+      "description": "500g de polenta crocante coberta com bacon e queijo mussarela. Acompanha farofa, molho da casa e pão."
+    },
+    {
+      "id": 51,
+      "name": "Isca de Frango com Batata Frita",
+      "price": 55.0,
+      "category": "Porções",
+      "description": "500g de filé de frango empanado + 300g de batata crocante. Acompanha farofa, molho da casa e pão."
+    },
+    {
+      "id": 52,
+      "name": "Isca de Alcatra, Calabresa e Batata ou Polenta",
+      "price": 86.0,
+      "category": "Porções",
+      "description": "300g de isca de alcatra chapeada com cebola + 300g de linguiça calabresa + 300g de batata ou polenta crocante. Acompanha farofa, molho da casa e pão. Escolha o acompanhamento.",
+      "customization": {
+        "additions": [
+          {"name": "Batata", "price": 0},
+          {"name": "Polenta", "price": 0}
+        ],
+        "removals": []
+      }
+    },
+    {
+      "id": 53,
+      "name": "Isca de Alcatra, Frango e Batata ou Polenta",
+      "price": 79.0,
+      "category": "Porções",
+      "description": "300g de isca de alcatra chapeada com cebola + 300g de filé de frango grelhado + 300g de batata ou polenta crocante. Acompanha farofa, molho da casa e pão. Escolha o acompanhamento.",
+      "customization": {
+        "additions": [
+          {"name": "Batata", "price": 0},
+          {"name": "Polenta", "price": 0}
+        ],
+        "removals": []
+      }
+    },
+    {
+      "id": 54,
+      "name": "Isca de Alcatra com Batata ou Polenta",
+      "price": 89.0,
+      "category": "Porções",
+      "description": "500g de isca de alcatra chapeada com cebola + 300g de batata ou polenta crocante. Acompanha farofa, molho da casa e pão. Escolha o acompanhamento.",
+      "customization": {
+        "additions": [
+          {"name": "Batata", "price": 0},
+          {"name": "Polenta", "price": 0}
+        ],
+        "removals": []
+      }
+    },
+    {
+      "id": 55,
+      "name": "Frango com Batata ou Polenta",
+      "price": 59.0,
+      "category": "Porções",
+      "description": "500g de filé de frango em cubos grelhado + 300g de batata ou polenta crocante. Acompanha farofa, molho da casa e pão. Escolha o acompanhamento.",
+      "customization": {
+        "additions": [
+          {"name": "Batata", "price": 0},
+          {"name": "Polenta", "price": 0}
+        ],
+        "removals": []
+      }
+    },
+    {
+      "id": 56,
+      "name": "Calabresa com Batata Frita",
+      "price": 54.0,
+      "category": "Porções",
+      "description": "500g de linguiça calabresa chapeada com cebola + 300g de batata crocante. Acompanha farofa, molho da casa e pão."
+    },
+    {
+      "id": 57,
+      "name": "Porção Mista Grelhada",
+      "price": 122.0,
+      "category": "Porções",
+      "description": "300g de isca de carne, 300g de calabresa, 300g de filé de frango e 500g de batata ou polenta. Acompanha farofa, molho da casa e pão. Escolha o acompanhamento.",
+      "customization": {
+        "additions": [
+          {"name": "Batata", "price": 0},
+          {"name": "Polenta", "price": 0}
+        ],
+        "removals": []
+      }
+    },
+    {
+      "id": 58,
+      "name": "Cheese Burguer",
+      "price": 28.0,
+      "category": "Lanches",
+      "description": "Pão brioche, hambúrguer, queijo e maionese. Acompanha fritas."
+    },
+    {
+      "id": 59,
+      "name": "Cheese Bacon",
+      "price": 32.0,
+      "category": "Lanches",
+      "description": "Pão brioche, maionese, hambúrguer, queijo, bacon, alface, tomate e cebola roxa. Acompanha fritas."
+    },
+    {
+      "id": 60,
+      "name": "Cheese Costela",
+      "price": 34.0,
+      "category": "Lanches",
+      "description": "Pão brioche, maionese, hambúrguer de costela, queijo, alface, tomate e cebola roxa. Acompanha fritas."
+    },
+    {
+      "id": 61,
+      "name": "Cheese Vulcão do Major",
+      "price": 35.0,
+      "category": "Lanches",
+      "description": "Pão brioche, hambúrguer, cebola caramelizada, maionese e bacon. Acompanha fritas."
+    }
+  ]
+}

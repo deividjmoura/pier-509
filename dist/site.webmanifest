@@ -1,0 +1,17 @@
+{
+  "name": "Pier 509 — Cardápio e Pedidos",
+  "short_name": "Pier 509",
+  "description": "Cardápio digital do Pier 509: peça da mesa, acompanhe o preparo e feche a conta pelo celular.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#060f1d",
+  "theme_color": "#060f1d",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "/favicons/pier509-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/favicons/pier509-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/favicons/pier509-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

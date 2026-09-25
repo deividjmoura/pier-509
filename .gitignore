@@ -1,0 +1,12 @@
+node_modules/
+.env
+*.log
+
+# fotos enviadas em runtime (public/uploads/.gitignore mantém a pasta viva)
+public/uploads/*
+
+.DS_Store
+*.local
+
+# rascunhos temporarios de investigacao (nunca commitar)
+.tmp-*
