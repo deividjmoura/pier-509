@@ -7,3 +7,6 @@ public/uploads/*
 
 .DS_Store
 *.local
+
+# rascunhos temporarios de investigacao (nunca commitar)
+.tmp-*
